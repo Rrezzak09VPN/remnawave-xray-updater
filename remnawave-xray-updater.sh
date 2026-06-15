@@ -95,7 +95,8 @@ wget -q --show-progress -O "$TMP_DIR/xray.zip" \
 unzip -q "$TMP_DIR/xray.zip" -d "$TMP_DIR"
 chmod +x "$TMP_DIR/xray"
 
-DOWN_VER=$("$TMP_DIR/xray" version | head -n1)
+XRAY_OUT=$("$TMP_DIR/xray" version 2>&1 || true)
+DOWN_VER=$(echo "$XRAY_OUT" | head -n 1 || true)
 
 if ! echo "$DOWN_VER" | grep -q "Xray ${XRAY_VERSION}"; then
     err "Version mismatch: $DOWN_VER"

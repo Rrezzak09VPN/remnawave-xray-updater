@@ -129,6 +129,10 @@ cd "$COMPOSE_DIR"
 # Если в override.yml будет ошибка или Docker не сможет запустить контейнер,
 # пользователь увидит лог, а set -e моментально перехватит ошибку и вызовет trap.
 docker compose up -d --force-recreate "$SERVICE"
+# Обновляем ID контейнера, так как --force-recreate создает новый контейнер с новым ID
+sleep 2
+CONTAINER=$(docker ps -q --filter "label=com.docker.compose.service=$SERVICE" | head -n1 || true)
+[ -z "$CONTAINER" ] && CONTAINER=$(docker ps -q --filter "name=remnanode" | head -n1 || true)
 
 # -----------------------------
 # 7. REAL HEALTH CHECK

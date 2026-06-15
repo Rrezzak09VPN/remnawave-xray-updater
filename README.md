@@ -67,3 +67,7 @@ rm -f docker-compose.override.yml && docker compose up -d --force-recreate remna
 ## 📄 Лицензия
 
 MIT
+
+## ❤️ Community
+
+Сделано для сикретнова чатика камунити Remnawave

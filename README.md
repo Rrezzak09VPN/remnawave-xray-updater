@@ -1,0 +1,57 @@
+# Remnawave Xray Safe Updater
+
+Скрипт для автоматического обновления **Xray-core** в контейнере **Remnawave Node** (решает баг Hysteria 2 online/traffic — Issue #5868).
+
+## Одна команда
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/vlad2912/remnawave-xray-updater/main/remnawave-xray-updater.sh)
+```
+
+С указанием конкретной версии Xray:
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/vlad2912/remnawave-xray-updater/main/remnawave-xray-updater.sh) -- 26.6.1
+```
+
+## Как это работает
+
+1. Находит запущенный контейнер `remnanode` по лейблу или имени
+2. Определяет архитектуру (amd64 / arm64)
+3. Скачивает указанную (или последнюю стабильную) версию Xray-core с GitHub
+4. Проверяет целостность скачанного бинарника
+5. Устанавливает бинарник в `custom-xray/xray` рядом с `docker-compose.yml`
+6. Создаёт `docker-compose.override.yml` с монтированием кастомного Xray
+7. Перезапускает сервис
+8. Выполняет health check (12 проверок по 5 секунд) — контейнер должен быть **running** с **0 рестартов**
+
+## Требования
+
+- `docker` и `docker compose` (версия plugin)
+- `curl`, `wget`, `unzip` — присутствуют в большинстве дистрибутивов
+- Контейнер Remnawave Node должен быть запущен
+
+## Параметры
+
+| Аргумент | По умолчанию | Описание |
+|----------|-------------|----------|
+| `VERSION` | `26.6.1` | Версия Xray-core (без префикса v) |
+
+## Rollback
+
+Скрипт выводит команду отката в конце. По умолчанию:
+
+```bash
+rm -f docker-compose.override.yml && docker compose up -d --force-recreate remnanode
+```
+
+## Безопасность
+
+- Скрипт **не перезаписывает** существующий `docker-compose.override.yml` — если файл уже есть, он выдаёт предупреждение и завершается
+- Все ошибки обрабатываются через `set -Eeuo pipefail` с явным trap
+- Перед перезапуском проверяется версия скачанного бинарника
+- После перезапуска — 60-секундный health check
+
+## Лицензия
+
+MIT
